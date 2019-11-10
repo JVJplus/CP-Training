@@ -139,8 +139,8 @@ ll m,n,a,b,c,d,k,x,y,z;
 void init(){}
 
 void solve(int tcaseNo){
-         input_arr;
-         
+         // input_arr;
+        
 }
 
 
