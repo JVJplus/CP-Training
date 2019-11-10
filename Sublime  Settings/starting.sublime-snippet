@@ -143,7 +143,7 @@ ll m,n,a,b,c,d,k,x,y,z;
 void init(){}
 
 void solve(int tcaseNo){
-        $3 // input_arr;
+        $3//input_arr;
         $0
 }
 

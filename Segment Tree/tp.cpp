@@ -135,12 +135,17 @@ ll arr[N];
 ll m,n,a,b,c,d,k,x,y,z;
 
 
+void build(){
+        
+}
+
 
 void init(){}
 
 void solve(int tcaseNo){
         input_arr;
-        
+        build();
+
 }
 
 
