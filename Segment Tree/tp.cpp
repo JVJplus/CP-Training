@@ -131,37 +131,92 @@ void __dbg(const char* names, Arg1&& arg1, Args&&... args){const char* comma = s
 
 
 #define N 100005
+int arrayBaseValue=0;
 ll arr[N];
+ll tree[4*N];
 ll m,n,a,b,c,d,k,x,y,z;
 
+void build(int arrayStartingIndex, int arrayEndIndex, int treeIndex){
+    // Base Case
+    if(arrayStartingIndex==arrayEndIndex){
+        tree[treeIndex]=arr[arrayStartingIndex];
+        return;
+    }
 
-void build(){
-        
+    // Tree Formulas
+    int arrayMidIndex= (arrayStartingIndex+arrayEndIndex)/2;
+    int treeLeftIndex=2*treeIndex;
+    int treeRightIndex=2*treeIndex+1;
+
+    // Build Recursively Child Tree
+    build(arrayStartingIndex, arrayMidIndex, treeLeftIndex);
+    build(arrayMidIndex+1, arrayEndIndex, treeRightIndex);
+
+    // Current Node Calculation
+    // tree[treeIndex]  = calculationFunction( LeftSideAnswer, RightSideAnswer);
+    tree[treeIndex] = tree[treeLeftIndex] + tree[treeRightIndex];
 }
+
+
+// Update
+void update(int arrayStartingIndex,int arrayEndIndex, int treeIndex, int indexToUpdate, int valueToUpdateWith){
+
+    // Base Case
+    if(arrayStartingIndex==arrayEndIndex){
+        arr[indexToUpdate] = valueToUpdateWith;
+        tree[treeIndex]= valueToUpdateWith;
+        return;
+    }
+
+    // Tree Formulas
+    int arrayMidIndex= (arrayStartingIndex+arrayEndIndex)/2;
+    int treeLeftIndex=2*treeIndex;
+    int treeRightIndex=2*treeIndex+1;
+
+    // Build Recursively Child Tree
+    if(indexToUpdate <= arrayMidIndex)
+        update(arrayStartingIndex, arrayMidIndex, treeLeftIndex, indexToUpdate, valueToUpdateWith);
+    else
+        update(arrayMidIndex+1, arrayEndIndex, treeRightIndex, indexToUpdate, valueToUpdateWith);
+
+
+    // Current Node Calculation
+    // tree[treeIndex]  = calculationFunction( LeftSideAnswer, RightSideAnswer);
+    tree[treeIndex] = tree[treeLeftIndex] + tree[treeRightIndex];
+}
+
+
+
+
 
 
 void init(){}
 
+//Crete overloaded shortcut functions of each!
 void solve(int tcaseNo){
-        input_arr;
-        build();
+    input_arr;
+    build(0,n,1); //(array starting index,end index, tree index);
+    
+    For(i,4*n)
+        cout<<tree[i]<<endl;
+
 
 }
 
 
 int main()
 {
-        fast_io;
-        #ifndef ONLINE_JUDGE
+    fast_io;
+    #ifndef ONLINE_JUDGE
         filesLocations
-        #endif
+    #endif
 
 
-        int testNo=1;
-        
-        // int t; cin>>t; while(t--)
-        { 
-                init();
-                solve(testNo++);   
-        }
+    int testNo=1;
+    
+    // int t; cin>>t; while(t--)
+    { 
+        init();
+        solve(testNo++);   
+    }
 }

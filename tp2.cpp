@@ -1,7 +1,3 @@
-<snippet>
-    <description>Starting Texts</description>
-    <content>
-<![CDATA[
 /*
 
 Jay Prakash Mahto
@@ -136,15 +132,15 @@ void __dbg(const char* names, Arg1&& arg1, Args&&... args){const char* comma = s
 
 #define N 100005
 ll arr[N];
-ll m,n,a,b,c,d,q,k,x,y,z;
+ll m,n,a,b,c,d,k,x,y,z;
 
 
 
 void init(){}
 
 void solve(int tcaseNo){
-        $3//input_arr;
-        $0
+        //input_arr;
+        
 }
 
 
@@ -157,17 +153,10 @@ int main()
 
 
         int testNo=1;
-        $1
-        $2// int t; cin>>t; while(t--)
+        
+        // int t; cin>>t; while(t--)
         { 
                 init();
                 solve(testNo++);   
         }
 }
-
-]]>
-
-    </content>
-    <tabTrigger>starting</tabTrigger>
-    <scope>source.c, source.objc, source.c++, source.objc++</scope>
-</snippet>
