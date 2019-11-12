@@ -1,7 +1,3 @@
-<snippet>
-    <description>Starting Texts</description>
-    <content>
-<![CDATA[
 /*
 
 Jay Prakash Mahto
@@ -137,39 +133,218 @@ void __dbg(const char* names, Arg1&& arg1, Args&&... args){const char* comma = s
 
 
 #define N 100005
+int arrayBaseValue=0;
 ll arr[N];
+ll tree[4*N];
+ll lazyTree[4*N];
 ll m,n,a,b,c,d,q,k,x,y,z;
 
+//same function work for build and update, can also be helpful for query calculation
+// <nodeType> function(<nodeType>lans, <nodeType> rans);
+void merge(int treeIndex){
+    ll leftSideAnswer =  tree[2*treeIndex];
+    ll rightSideAnswer = tree[2*treeIndex+1];
+    // Update the treeIndex
+    tree[treeIndex] = min(leftSideAnswer,rightSideAnswer);
+}
+
+void build(int arrayStartIndex, int arrayEndIndex, int treeIndex){
+    // Base Case
+    if(arrayStartIndex==arrayEndIndex){
+        tree[treeIndex]=arr[arrayStartIndex];
+        return;
+    }
+
+    // Tree Formulas
+    int arrayMidIndex= (arrayStartIndex+arrayEndIndex)/2;
+    int treeLeftIndex=2*treeIndex;
+    int treeRightIndex=2*treeIndex+1;
+
+    // Build Recursively Child Tree
+    build(arrayStartIndex, arrayMidIndex, treeLeftIndex);
+    build(arrayMidIndex+1, arrayEndIndex, treeRightIndex);
+
+    // Current Node Calculation
+    // tree[treeIndex]  = calculationFunction( LeftSideAnswer, RightSideAnswer);
+    //update the tree Index;
+    merge(treeIndex);
+}
+
+void build(){
+    //(array starting index,end index, tree index);
+    if(arrayBaseValue==0)
+        build(0,n-1,1);
+    else
+        build(1,n,1);
+}
+
+// Update
+void update(int arrayStartIndex,int arrayEndIndex, int treeIndex, int indexToUpdate, int valueToUpdateWith){
+
+    // Base Case
+    if(arrayStartIndex==arrayEndIndex){
+        arr[indexToUpdate] = valueToUpdateWith;
+        tree[treeIndex]= valueToUpdateWith;
+        return;
+    }
+
+    // Tree Formulas
+    int arrayMidIndex= (arrayStartIndex+arrayEndIndex)/2;
+    int treeLeftIndex=2*treeIndex;
+    int treeRightIndex=2*treeIndex+1;
+
+    // Build Recursively Child Tree
+    if(indexToUpdate <= arrayMidIndex)
+        update(arrayStartIndex, arrayMidIndex, treeLeftIndex, indexToUpdate, valueToUpdateWith);
+    else
+        update(arrayMidIndex+1, arrayEndIndex, treeRightIndex, indexToUpdate, valueToUpdateWith);
 
 
-void init(){}
+    // Current Node Calculation
+    // tree[treeIndex]  = calculationFunction( LeftSideAnswer, RightSideAnswer);
+    merge(treeIndex);
+}
+
+void update(int indexToUpdate, int valueToUpdateWith){
+    if(arrayBaseValue==0)
+        update(0,n-1,1,indexToUpdate,valueToUpdateWith);
+    else
+        update(1,n,1,indexToUpdate,valueToUpdateWith);
+}
+
+void update(int arrayStartIndex,int arrayEndIndex, int treeIndex, int LtoUpdate, int RtoUpdate, int valueToUpdateWith){  
+
+    // Tree Formulas
+    int arrayMidIndex= (arrayStartIndex+arrayEndIndex)/2;
+    int treeLeftIndex=2*treeIndex;
+    int treeRightIndex=2*treeIndex+1;
+
+
+    if(LtoUpdate > RtoUpdate) return; //corner case
+
+    //Reload previous lazy values
+    if(lazyTree[treeIndex] != 0){
+        tree[treeIndex] += lazyTree[treeIndex];
+
+        // if not leaf nodes
+        if(arrayStartIndex != arrayEndIndex){
+            lazyTree[treeLeftIndex] += lazyTree[treeIndex];
+            lazyTree[treeRightIndex] += lazyTree[treeIndex];
+        }
+
+        // Resetting current index lazy value 
+        lazyTree[treeIndex] = 0;
+    }
+
+    // No overlapping
+    if(LtoUpdate > arrayEndIndex || RtoUpdate < arrayStartIndex){
+        return;
+    }
+
+    //Complete overlapping
+    if(arrayStartIndex>=LtoUpdate && arrayEndIndex<=RtoUpdate){
+        tree[treeIndex] += valueToUpdateWith;
+        // if not leaf
+        if(arrayStartIndex != arrayEndIndex){
+            lazyTree[treeLeftIndex] += valueToUpdateWith;
+            lazyTree[treeRightIndex] += valueToUpdateWith;
+        }
+        return;
+    }
+
+
+    // Partial overlapping
+    update(arrayStartIndex, arrayMidIndex, treeLeftIndex, LtoUpdate, RtoUpdate, valueToUpdateWith);
+    update(arrayMidIndex+1, arrayEndIndex, treeRightIndex, LtoUpdate, RtoUpdate, valueToUpdateWith);
+
+    // same as
+    // tree[treeIndex] = min(tree[treeLeftIndex],tree[treeRightIndex]);
+    merge(treeIndex);
+}
+
+void update(int LtoUpdate, int RtoUpdate, int valueToUpdateWith){
+    if(arrayBaseValue==0)
+        update(0,n-1,1,LtoUpdate, RtoUpdate,valueToUpdateWith);
+    else
+        update(1,n,1,LtoUpdate, RtoUpdate,valueToUpdateWith);
+}
+
+
+// Query 
+//<ReturnType>  function();
+int query(int arrayStartIndex, int arrayEndIndex, int treeIndex, int queryLeft, int queryRight){
+
+    // Tree Formulas
+    int arrayMidIndex= (arrayStartIndex+arrayEndIndex)/2;
+    int treeLeftIndex=2*treeIndex;
+    int treeRightIndex=2*treeIndex+1;
+
+    //Reload previous lazy values
+    if(lazyTree[treeIndex] != 0){
+        tree[treeIndex] += lazyTree[treeIndex];
+
+        // if not leaf nodes
+        if(arrayStartIndex != arrayEndIndex){
+            lazyTree[treeLeftIndex] += lazyTree[treeIndex];
+            lazyTree[treeRightIndex] += lazyTree[treeIndex];
+        }
+
+        // Resetting current index lazy value 
+        lazyTree[treeIndex] = 0;
+    }
+
+
+    // Tree Range is completely Outside the given Query Range
+    if(queryRight < arrayStartIndex || queryLeft > arrayEndIndex){
+        // Return opposite type value of function
+        return INF;
+    }
+
+    // Tree Range is completely Inside the given Query Range
+    if(arrayStartIndex>=queryLeft && arrayEndIndex<=queryRight){
+        return tree[treeIndex];
+    }
+
+    // Tree Range is in Partial Condition
+    ll leftSideAnswer = query(arrayStartIndex, arrayMidIndex, treeLeftIndex, queryLeft, queryRight); 
+    ll rightSideAnswer = query(arrayMidIndex+1, arrayEndIndex, treeRightIndex, queryLeft, queryRight); 
+
+    return min(leftSideAnswer, rightSideAnswer); 
+}
+
+int query(int queryLeft, int queryRight){
+    if(arrayBaseValue==0)
+        return query(0,n-1,1,queryLeft,queryRight);
+    else
+        return query(1,n,1,queryLeft,queryRight);
+}
+
+
+void init(){
+    arrayBaseValue=0;
+}
+
 
 void solve(int tcaseNo){
-        $3//input_arr;
-        $0
+   input_arr
+   build(); 
+
 }
 
 
 int main()
 {
-        fast_io;
-        #ifndef ONLINE_JUDGE
-        filesLocations
-        #endif
+     fast_io;
+     #ifndef ONLINE_JUDGE
+         filesLocations
+    #endif
 
+     int testNo=1;
 
-        int testNo=1;
-        $1
-        $2// int t; cin>>t; while(t--)
-        { 
-                init();
-                solve(testNo++);   
-        }
+    // int t; cin>>t; while(t--)
+     { 
+        init();
+        solve(testNo++);   
+    }
+
 }
-
-]]>
-
-    </content>
-    <tabTrigger>starting</tabTrigger>
-    <scope>source.c, source.objc, source.c++, source.objc++</scope>
-</snippet>

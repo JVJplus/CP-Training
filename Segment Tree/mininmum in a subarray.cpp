@@ -1,7 +1,3 @@
-<snippet>
-    <description>Starting Texts</description>
-    <content>
-<![CDATA[
 /*
 
 Jay Prakash Mahto
@@ -80,9 +76,7 @@ const int fxx[8][2] =                  {{0,1}, {0,-1}, {1,0}, {-1,0}, {1,1}, {1,
 #define print2(x,y)                    cout<<x<<" "<<y;
 #define println(x)                     cout<<x<<'\n';
 #define input_arr                      cin>>n; For(i,n) cin>>arr[i];
-#define input_ARR                    cin>>n; FOR(i,1,n+1) cin>>arr[i];
 #define accept_arr                   For(i,n) cin>>arr[i];
-#define accept_ARR                   FOR(i,1,n+1) cin>>arr[i];
 #define accept_array(arr,N)              For(i,N) cin>>arr[i];
 #define gets(n)                        getline(cin,n); cin.ignore();
 #define print1d(arr,length)            for(int i=0;i<length;i++) cout<<arr[i]<<" "; cout<<'\n';
@@ -137,39 +131,155 @@ void __dbg(const char* names, Arg1&& arg1, Args&&... args){const char* comma = s
 
 
 #define N 100005
+int arrayBaseValue=1;
 ll arr[N];
+ll tree[4*N];
 ll m,n,a,b,c,d,q,k,x,y,z;
 
+void build(int arrayStartingIndex, int arrayEndIndex, int treeIndex){
+    // Base Case
+    if(arrayStartingIndex==arrayEndIndex){
+        tree[treeIndex]=arr[arrayStartingIndex];
+        return;
+    }
+
+    // Tree Formulas
+    int arrayMidIndex= (arrayStartingIndex+arrayEndIndex)/2;
+    int treeLeftIndex=2*treeIndex;
+    int treeRightIndex=2*treeIndex+1;
+
+    // Build Recursively Child Tree
+    build(arrayStartingIndex, arrayMidIndex, treeLeftIndex);
+    build(arrayMidIndex+1, arrayEndIndex, treeRightIndex);
+
+    // Current Node Calculation
+    // tree[treeIndex]  = calculationFunction( LeftSideAnswer, RightSideAnswer);
+    ll leftSideAnswer =  tree[treeLeftIndex];
+    ll rightSideAnswer = tree[treeRightIndex];
+    tree[treeIndex] = min( leftSideAnswer,  rightSideAnswer);
+}
+
+void build(){
+    //(array starting index,end index, tree index);
+    if(arrayBaseValue==0)
+        build(0,n-1,1);
+    else
+        build(1,n,1);
+}
+
+
+
+// Update
+void update(int arrayStartingIndex,int arrayEndIndex, int treeIndex, int indexToUpdate, int valueToUpdateWith){
+
+    // Base Case
+    if(arrayStartingIndex==arrayEndIndex){
+        arr[indexToUpdate] = valueToUpdateWith;
+        tree[treeIndex]= valueToUpdateWith;
+        return;
+    }
+
+    // Tree Formulas
+    int arrayMidIndex= (arrayStartingIndex+arrayEndIndex)/2;
+    int treeLeftIndex=2*treeIndex;
+    int treeRightIndex=2*treeIndex+1;
+
+    // Build Recursively Child Tree
+    if(indexToUpdate <= arrayMidIndex)
+        update(arrayStartingIndex, arrayMidIndex, treeLeftIndex, indexToUpdate, valueToUpdateWith);
+    else
+        update(arrayMidIndex+1, arrayEndIndex, treeRightIndex, indexToUpdate, valueToUpdateWith);
+
+
+    // Current Node Calculation
+    // tree[treeIndex]  = calculationFunction( LeftSideAnswer, RightSideAnswer);
+    ll leftSideAnswer =  tree[treeLeftIndex];
+    ll rightSideAnswer = tree[treeRightIndex];
+    tree[treeIndex] =min( leftSideAnswer ,  rightSideAnswer);
+}
+
+void update(int indexToUpdate, int valueToUpdateWith){
+    if(arrayBaseValue==0)
+        update(0,n-1,1,indexToUpdate,valueToUpdateWith);
+    else
+        update(1,n,1,indexToUpdate,valueToUpdateWith);
+}
+
+// Query 
+//<ReturnType>  function();
+int query(int arrayStartingIndex, int arrayEndIndex, int treeIndex, int queryLeft, int queryRight){
+
+    // Tree Range is completely Outside the given Query Range
+    if(queryRight < arrayStartingIndex || queryLeft > arrayEndIndex){
+        // Return opposite type value of function
+        return INF;
+    }
+
+    // Tree Range is completely Inside the given Query Range
+    if(arrayStartingIndex>=queryLeft && arrayEndIndex<=queryRight){
+        return tree[treeIndex];
+    }
+
+    // Tree Range is in Partial Condition
+
+    // Tree Formulas
+    int arrayMidIndex= (arrayStartingIndex+arrayEndIndex)/2;
+    int treeLeftIndex=2*treeIndex;
+    int treeRightIndex=2*treeIndex+1;
+
+    ll leftSideAnswer = query(arrayStartingIndex, arrayMidIndex, treeLeftIndex, queryLeft, queryRight); 
+    ll rightSideAnswer = query(arrayMidIndex+1, arrayEndIndex, treeRightIndex, queryLeft, queryRight); 
+
+    return min(leftSideAnswer, rightSideAnswer); 
+}
+
+int query(int queryLeft, int queryRight){
+    if(arrayBaseValue==0)
+        return query(0,n-1,1,queryLeft,queryRight);
+    else
+        return query(1,n,1,queryLeft,queryRight);
+}
 
 
 void init(){}
 
+
 void solve(int tcaseNo){
-        $3//input_arr;
-        $0
+    cin>>n>>q;
+    FOR(i,1,n+1)
+        cin>>arr[i];
+    build(); 
+
+/*    For(i,4*n)
+        cout<<tree[i]<<" ";
+        NL;
+*/
+
+    For(i,q){
+        char k;
+        cin>>k>>a>>b;
+        if(k=='q')
+            cout<<query(a,b)<<endl;
+        else
+            update(a,b);
+    }    
+    
 }
 
 
 int main()
 {
-        fast_io;
-        #ifndef ONLINE_JUDGE
+    fast_io;
+    #ifndef ONLINE_JUDGE
         filesLocations
-        #endif
+    #endif
 
 
-        int testNo=1;
-        $1
-        $2// int t; cin>>t; while(t--)
-        { 
-                init();
-                solve(testNo++);   
-        }
+    int testNo=1;
+    
+    // int t; cin>>t; while(t--)
+    { 
+        init();
+        solve(testNo++);   
+    }
 }
-
-]]>
-
-    </content>
-    <tabTrigger>starting</tabTrigger>
-    <scope>source.c, source.objc, source.c++, source.objc++</scope>
-</snippet>
